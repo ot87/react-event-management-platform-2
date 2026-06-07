@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
-import { useFetchEvents, useFiltersReducer } from "../hooks";
+import { useFavorites, useFetchEvents, useFiltersReducer } from "../hooks";
 
 import { EventFilters } from "../components/EventFilters";
 import { EventList } from "../components/EventList";
@@ -42,6 +42,8 @@ export function EventsPage() {
     return sort ? [...result].sort(getComparator(sort)) : result;
   }, [events, searchTerm, filters.date, filters.price, sort]);
 
+  const { favorites, toggleFavorite } = useFavorites();
+
   let content;
   if (loading) {
     content = <p>Loading...</p>;
@@ -50,7 +52,13 @@ export function EventsPage() {
   } else if (filteredEvents.length === 0) {
     content = <p>No events found</p>;
   } else {
-    content = <EventList events={filteredEvents} />;
+    content = (
+      <EventList
+        events={filteredEvents}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+      />
+    );
   }
 
   return (
