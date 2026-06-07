@@ -2,10 +2,10 @@
   "events": [
     {
       "id": "1",
-      "title": "React Conference 2024",
-      "description": "Annual React developers conference",
+      "title": "React Conference 2026",
+      "description": "Annual React developers conference with talks, workshops, and networking.",
       "category": "Technology",
-      "date": "2024-07-15",
+      "date": "2026-07-15",
       "time": "09:00 AM",
       "location": "San Francisco, CA",
       "venue": "Convention Center",
@@ -19,9 +19,9 @@
     {
       "id": "2",
       "title": "Indie Music Night",
-      "description": "Live sets from emerging local bands",
+      "description": "Live sets from emerging local bands.",
       "category": "Music",
-      "date": "2024-08-03",
+      "date": "2026-06-11",
       "time": "07:30 PM",
       "location": "Toronto, ON",
       "venue": "The Garrison",
@@ -34,9 +34,9 @@
     {
       "id": "3",
       "title": "Startup Pitch Day",
-      "description": "Founders pitch to a panel of investors",
+      "description": "Founders pitch to a panel of investors.",
       "category": "Business",
-      "date": "2024-09-12",
+      "date": "2026-06-28",
       "time": "10:00 AM",
       "location": "Toronto, ON",
       "venue": "MaRS Centre",
@@ -46,6 +46,84 @@
         { "id": "1", "name": "Attendee", "price": 0, "available": 150 },
         { "id": "2", "name": "Investor", "price": 50, "available": 40 }
       ]
+    },
+    {
+      "id": "4",
+      "title": "City Marathon 2026",
+      "description": "Annual city-wide road race for runners of all levels.",
+      "category": "Sports",
+      "date": "2026-06-08",
+      "time": "07:00 AM",
+      "location": "Boston, MA",
+      "venue": "Downtown Course",
+      "image": "https://placehold.co/400x200",
+      "organizerName": "RunBoston",
+      "ticketTypes": [
+        { "id": "1", "name": "Runner", "price": 45, "available": 1000 },
+        { "id": "2", "name": "VIP Stand", "price": 80, "available": 100 }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "Modern Art Expo",
+      "description": "Contemporary works from local and international artists.",
+      "category": "Arts",
+      "date": "2026-06-20",
+      "time": "11:00 AM",
+      "location": "New York, NY",
+      "venue": "Gallery 21",
+      "image": "https://placehold.co/400x200",
+      "organizerName": "ArtSpace Collective",
+      "ticketTypes": [
+        { "id": "1", "name": "General", "price": 25, "available": 300 },
+        { "id": "2", "name": "Guided Tour", "price": 40, "available": 50 }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "Summer Jazz Festival",
+      "description": "A weekend of live jazz performances by the waterfront.",
+      "category": "Music",
+      "date": "2026-08-03",
+      "time": "06:00 PM",
+      "location": "Montreal, QC",
+      "venue": "Old Port Stage",
+      "image": "https://placehold.co/400x200",
+      "organizerName": "Jazz Montreal",
+      "ticketTypes": [
+        { "id": "1", "name": "Day Pass", "price": 60, "available": 500 },
+        { "id": "2", "name": "Weekend Pass", "price": 150, "available": 200 }
+      ]
+    },
+    {
+      "id": "7",
+      "title": "Community Theatre Night",
+      "description": "An evening of local theatre, free and open to all.",
+      "category": "Arts",
+      "date": "2026-06-13",
+      "time": "07:00 PM",
+      "location": "Toronto, ON",
+      "venue": "Aki Studio",
+      "image": "https://placehold.co/400x200",
+      "organizerName": "Community Arts Hub",
+      "ticketTypes": [
+        { "id": "1", "name": "Admission", "price": 0, "available": 120 }
+      ]
+    },
+    {
+      "id": "8",
+      "title": "Intro to TypeScript Workshop",
+      "description": "Hands-on workshop covering TypeScript fundamentals.",
+      "category": "Technology",
+      "date": "2026-05-20",
+      "time": "01:00 PM",
+      "location": "Remote",
+      "venue": "Online",
+      "image": "https://placehold.co/400x200",
+      "organizerName": "DevLearn",
+      "ticketTypes": [
+        { "id": "1", "name": "Seat", "price": 49, "available": 40 }
+      ]
     }
   ],
   "bookings": [
@@ -53,20 +131,32 @@
       "id": "1",
       "userId": "user1",
       "eventId": "1",
-      "eventTitle": "React Conference 2024",
-      "eventDate": "2024-07-15",
+      "eventTitle": "React Conference 2026",
+      "eventDate": "2026-07-15",
       "tickets": [{ "type": "General", "quantity": 2, "price": 99 }],
       "attendees": [
-        {
-          "name": "John Doe",
-          "email": "john@example.com",
-          "phone": "123-456-7890"
-        }
+        { "name": "John Doe", "email": "john@example.com", "phone": "123-456-7890" },
+        { "name": "Jane Smith", "email": "jane@example.com", "phone": "123-456-7891" }
       ],
       "totalAmount": 198,
       "status": "confirmed",
-      "bookingDate": "2024-02-01",
-      "referenceNumber": "BK123456"
+      "bookingDate": "2026-05-01",
+      "referenceNumber": "BK100001"
+    },
+    {
+      "id": "2",
+      "userId": "user1",
+      "eventId": "8",
+      "eventTitle": "Intro to TypeScript Workshop",
+      "eventDate": "2026-05-20",
+      "tickets": [{ "type": "Seat", "quantity": 1, "price": 49 }],
+      "attendees": [
+        { "name": "John Doe", "email": "john@example.com", "phone": "123-456-7890" }
+      ],
+      "totalAmount": 49,
+      "status": "confirmed",
+      "bookingDate": "2026-04-15",
+      "referenceNumber": "BK100002"
     }
   ]
 }
