@@ -1,4 +1,4 @@
-import { FilterSelect } from "./FilterSelect";
+import { LabeledSelect } from "./LabeledSelect";
 import type { FiltersState, FilterType } from "../reducers/filters.reducer";
 
 const CATEGORY_OPTIONS = [
@@ -62,19 +62,19 @@ export function EventFilters({
 
   return (
     <div>
-      <FilterSelect
+      <LabeledSelect
         label="Category"
         options={CATEGORY_OPTIONS}
         value={category ?? "All"}
         onChange={onCategoryChange}
       />
-      <FilterSelect
+      <LabeledSelect
         label="Date"
         options={DATE_OPTIONS}
         value={filters.date}
         onChange={handleOnDateChange}
       />
-      <FilterSelect
+      <LabeledSelect
         label="Price"
         options={PRICE_OPTIONS}
         value={filters.price}

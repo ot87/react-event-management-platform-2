@@ -1,16 +1,16 @@
-interface FilterSelectProps {
+interface LabeledSelectProps {
   label: string;
   options: { value: string; label: string }[];
   value: string;
   onChange: (value: string) => void;
 }
 
-export function FilterSelect({
+export function LabeledSelect({
   label,
   options,
   value,
   onChange,
-}: FilterSelectProps) {
+}: LabeledSelectProps) {
   const handleOnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange(e.target.value);
   };
