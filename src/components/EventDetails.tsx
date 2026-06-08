@@ -1,10 +1,22 @@
+import { useState } from "react";
+
 import type { Event } from "../types";
+import { Modal } from "./Modal";
+import { BookingFlow } from "./BookingFlow";
 
 interface EventDetailsProps {
   event: Event;
 }
 
 export function EventDetails({ event }: EventDetailsProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleButtonClick = () => {
+    setIsModalOpen(true);
+  };
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div>
       <h2>{event.title}</h2>
@@ -27,7 +39,10 @@ export function EventDetails({ event }: EventDetailsProps) {
           </div>
         ))}
       </div>
-      <button>Book Tickets</button>
+      <button onClick={handleButtonClick}>Book Tickets</button>
+      <Modal isOpen={isModalOpen} onClose={handleModalClose}>
+        <BookingFlow event={event} />
+      </Modal>
     </div>
   );
 }
