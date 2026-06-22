@@ -110,7 +110,7 @@ export function BookingFlow({ event }: BookingFlowProps) {
             </p>
             <button
               type="button"
-              onClick={() => navigate("/bookings")}
+              onClick={() => navigate("/my-bookings")}
               className={primaryButton}
             >
               View My Bookings

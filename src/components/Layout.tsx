@@ -17,7 +17,7 @@ function Layout() {
             <NavLink to="/" className={navLinkClass}>
               Events
             </NavLink>
-            <NavLink to="/bookings" className={navLinkClass}>
+            <NavLink to="/my-bookings" className={navLinkClass}>
               My Bookings
             </NavLink>
             <NavLink to="/profile" className={navLinkClass}>
