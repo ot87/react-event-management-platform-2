@@ -1,5 +1,6 @@
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, useNavigation } from "react-router";
 import { useTheme } from "../hooks";
+import { Loader } from "./Loader";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   isActive
@@ -8,6 +9,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 function Layout() {
   const { theme, toggleTheme } = useTheme();
+  const navigation = useNavigation();
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
@@ -36,6 +38,7 @@ function Layout() {
       </header>
 
       <main className="mx-auto max-w-5xl p-4">
+        {navigation.state === "loading" && <Loader />}
         <Outlet />
       </main>
     </div>

@@ -9,6 +9,9 @@ import { BookingsPage } from "./pages/BookingsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 
+import { queryClient } from "./lib/queryClient";
+import { eventsQuery } from "./queries";
+
 export const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -17,6 +20,7 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <EventsPage />,
+        loader: () => queryClient.ensureQueryData(eventsQuery()),
       },
       {
         path: "events/:id",

@@ -1,3 +1,5 @@
+import { Loader } from "./Loader";
+
 interface AsyncBoundaryProps {
   loading: boolean;
   error: string | null;
@@ -14,11 +16,7 @@ export function AsyncBoundary({
   children,
 }: AsyncBoundaryProps) {
   if (loading) {
-    return (
-      <p className="py-8 text-center text-gray-500 dark:text-gray-400">
-        Loading...
-      </p>
-    );
+    return <Loader />;
   }
 
   if (error) {

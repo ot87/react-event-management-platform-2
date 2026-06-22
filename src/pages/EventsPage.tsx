@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
-import { useFavorites, useFetchEvents, useFiltersReducer } from "../hooks";
+import { useFavorites, useFiltersReducer } from "../hooks";
 
 import { EventFilters } from "../components/EventFilters";
 import { EventList } from "../components/EventList";
@@ -12,6 +12,8 @@ import { AsyncBoundary } from "../components/AsyncBoundary";
 import { matchesDate } from "../utils/date";
 import { matchesPrice } from "../utils/price";
 import { getComparator } from "../utils/sort";
+
+import { useEventsQuery } from "../queries";
 
 const SORT_OPTIONS = [
   { value: "", label: "Default" },
@@ -26,7 +28,7 @@ export function EventsPage() {
     setSearchParams(value === "All" ? {} : { category: value });
   };
 
-  const { events, loading, error } = useFetchEvents(category);
+  const { events, isPending, error } = useEventsQuery( );
 
   const [searchTerm, setSearchTerm] = useState("");
   const { filters, updateFilter } = useFiltersReducer();
@@ -38,10 +40,11 @@ export function EventsPage() {
         title.toLowerCase().includes(searchTerm.toLowerCase()),
       )
       .filter(({ date }) => matchesDate(date, filters.date))
-      .filter((event) => matchesPrice(event, filters.price));
+      .filter((event) => matchesPrice(event, filters.price))
+      .filter((event) => !category || event.category === category);
 
     return sort ? [...result].sort(getComparator(sort)) : result;
-  }, [events, searchTerm, filters.date, filters.price, sort]);
+  }, [events, searchTerm, filters.date, filters.price, sort, category]);
 
   const { favorites, toggleFavorite } = useFavorites();
 
@@ -68,8 +71,8 @@ export function EventsPage() {
       </div>
 
       <AsyncBoundary
-        loading={loading}
-        error={error}
+        loading={isPending}
+        error={error?.message ?? null}
         isEmpty={filteredEvents.length === 0}
         emptyMessage="No events found"
       >
