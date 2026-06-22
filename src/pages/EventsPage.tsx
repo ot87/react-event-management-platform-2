@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { useFavorites, useFiltersReducer } from "../hooks";
@@ -28,23 +28,24 @@ export function EventsPage() {
     setSearchParams(value === "All" ? {} : { category: value });
   };
 
-  const { events, isPending, error } = useEventsQuery( );
+  const { events, isPending, error } = useEventsQuery();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const { filters, updateFilter } = useFiltersReducer();
   const [sort, setSort] = useState("");
 
   const filteredEvents = useMemo(() => {
     const result = events
       .filter(({ title }) =>
-        title.toLowerCase().includes(searchTerm.toLowerCase()),
+        title.toLowerCase().includes(deferredSearchTerm.toLowerCase()),
       )
       .filter(({ date }) => matchesDate(date, filters.date))
       .filter((event) => matchesPrice(event, filters.price))
       .filter((event) => !category || event.category === category);
 
     return sort ? [...result].sort(getComparator(sort)) : result;
-  }, [events, searchTerm, filters.date, filters.price, sort, category]);
+  }, [events, deferredSearchTerm, filters.date, filters.price, sort, category]);
 
   const { favorites, toggleFavorite } = useFavorites();
 
