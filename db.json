@@ -191,6 +191,22 @@
       ]
     }
   ],
+  "reviews": [
+    {
+      "id": "1",
+      "eventId": "1",
+      "author": "Alex",
+      "rating": 5,
+      "comment": "Great talks."
+    },
+    {
+      "id": "2",
+      "eventId": "1",
+      "author": "Sam",
+      "rating": 4,
+      "comment": "Well organized."
+    }
+  ],
   "bookings": [
     {
       "id": "1",

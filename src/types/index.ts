@@ -19,6 +19,14 @@ export type Event = {
   ticketTypes: TicketType[];
 };
 
+export type Review = {
+  id: string;
+  eventId: string;
+  author: string;
+  rating: number;
+  comment: string;
+};
+
 export type Ticket = {
   type: string;
   quantity: number;
