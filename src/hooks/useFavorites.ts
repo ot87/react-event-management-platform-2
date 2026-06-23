@@ -1,27 +1,19 @@
-import { useEffect, useState } from "react";
+import { useFavoritesMutation, useUserQuery } from "../queries";
+import type { Event } from "../types";
+import { useUser } from "./useUser";
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<Set<string>>(() => {
-    const stored = localStorage.getItem("favorites");
-    return stored ? new Set<string>(JSON.parse(stored)) : new Set();
-  });
+  const { userId } = useUser();
+  const { user } = useUserQuery(userId);
+  const favorites = user?.favoriteEvents ?? [];
+  const { mutate } = useFavoritesMutation(userId);
 
-  useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify([...favorites]));
-  }, [favorites]);
+  const toggleFavorite = (eventId: Event["id"]) => {
+    const next = favorites.includes(eventId)
+      ? favorites.filter((favoriteId) => favoriteId !== eventId)
+      : [...favorites, eventId];
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-
-      return next;
-    });
+    mutate(next);
   };
 
   return { favorites, toggleFavorite };

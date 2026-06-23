@@ -46,3 +46,9 @@ export type Booking = {
   bookingDate: string;
   referenceNumber: string;
 };
+
+export type User = {
+  id: string;
+  name: string;
+  favoriteEvents: string[];
+};

@@ -1,9 +1,9 @@
-import type { Event } from "../types";
+import type { Event, User } from "../types";
 import { EventCard } from "./EventCard";
 
 type EventListProps = {
   events: Event[];
-  favorites: Set<string>;
+  favorites: User["favoriteEvents"];
   onToggleFavorite: (id: string) => void;
 };
 
@@ -18,7 +18,7 @@ export function EventList({
         <EventCard
           key={event.id}
           event={event}
-          isFavorite={favorites.has(event.id)}
+          isFavorite={favorites.includes(event.id)}
           onToggleFavorite={() => onToggleFavorite(event.id)}
         />
       ))}

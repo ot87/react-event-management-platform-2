@@ -247,5 +247,12 @@
       "bookingDate": "2026-04-15",
       "referenceNumber": "BK100002"
     }
+  ],
+  "users": [
+    {
+      "id": "user1",
+      "name": "Demo User",
+      "favoriteEvents": ["1", "3"]
+    }
   ]
 }
