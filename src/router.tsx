@@ -5,11 +5,12 @@ import ErrorPage from "./pages/ErrorPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 import { EventsPage } from "./pages/EventsPage";
+import { BookingPage } from "./pages/BookingPage";
 import { BookingsPage } from "./pages/BookingsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 
-import { eventLoader, eventsLoader } from "./queries";
+import { bookingLoader, eventLoader, eventsLoader } from "./queries";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,11 @@ export const router = createBrowserRouter([
         path: "events/:id",
         element: <EventDetailPage />,
         loader: eventLoader,
+      },
+      {
+        path: "book/:eventId",
+        element: <BookingPage />,
+        loader: bookingLoader,
       },
       {
         path: "my-bookings",

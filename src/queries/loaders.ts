@@ -15,3 +15,11 @@ export const eventLoader = async ({ params }: LoaderFunctionArgs) => {
 
   return { reviews: getReviews(params.id) };
 };
+
+export const bookingLoader = ({ params }: LoaderFunctionArgs) => {
+  if (!params.eventId) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  return queryClient.ensureQueryData(eventQuery(params.eventId));
+};

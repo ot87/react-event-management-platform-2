@@ -1,22 +1,11 @@
-import { useState } from "react";
-
+import { Link } from "react-router";
 import type { Event } from "../types";
-import { Modal } from "./Modal";
-import { BookingFlow } from "./BookingFlow";
 
 interface EventDetailsProps {
   event: Event;
 }
 
 export function EventDetails({ event }: EventDetailsProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleButtonClick = () => {
-    setIsModalOpen(true);
-  };
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
       <h2 className="text-2xl font-bold">{event.title}</h2>
@@ -51,17 +40,12 @@ export function EventDetails({ event }: EventDetailsProps) {
         </ul>
       </div>
 
-      <button
-        type="button"
-        onClick={handleButtonClick}
-        className="mt-6 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+      <Link
+        to={`/book/${event.id}`}
+        className="inline-block mt-6 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
       >
         Book Tickets
-      </button>
-
-      <Modal isOpen={isModalOpen} onClose={handleModalClose}>
-        <BookingFlow event={event} />
-      </Modal>
+      </Link>
     </div>
   );
 }
