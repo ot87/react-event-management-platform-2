@@ -29,9 +29,3 @@ export function validateAttendee(attendee: Attendee): AttendeeErrors {
 
   return errors;
 }
-
-export function areAttendeesValid(attendees: Attendee[]): boolean {
-  return attendees.every(
-    (attendee) => Object.keys(validateAttendee(attendee)).length === 0,
-  );
-}

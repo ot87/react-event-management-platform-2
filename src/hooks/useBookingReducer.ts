@@ -6,8 +6,9 @@ import {
   BACK_ACTION_TYPE,
   SELECT_TICKET_ACTION_TYPE,
   SET_QUANTITY_ACTION_TYPE,
-  UPDATE_ATTENDEE_ACTION_TYPE,
+  SET_ATTENDEES_ACTION_TYPE,
 } from "../reducers/booking.reducer";
+import type { Attendee } from "../types";
 
 export function useBookingReducer(initTicketTypeId: string) {
   const [booking, dispatch] = useReducer(bookingReducer, initState, () => ({
@@ -27,16 +28,12 @@ export function useBookingReducer(initTicketTypeId: string) {
   const setQuantity = (quantity: number) => {
     dispatch({ type: SET_QUANTITY_ACTION_TYPE, payload: { quantity } });
   };
-  const updateAttendee = (
-    index: number,
-    field: "name" | "email" | "phone",
-    value: string,
-  ) => {
+  const setAttendees = (attendees: Attendee[]) => {
     dispatch({
-      type: UPDATE_ATTENDEE_ACTION_TYPE,
-      payload: { index, field, value },
+      type: SET_ATTENDEES_ACTION_TYPE,
+      payload: attendees,
     });
   };
 
-  return { booking, next, back, selectTicket, setQuantity, updateAttendee };
+  return { booking, next, back, selectTicket, setAttendees, setQuantity };
 }

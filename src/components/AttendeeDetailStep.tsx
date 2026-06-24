@@ -1,13 +1,12 @@
-import { validateAttendee } from "../utils/validation";
+import { useActionState, useId } from "react";
+import { validateAttendee, type AttendeeErrors } from "../utils/validation";
 import type { Attendee } from "../types";
+
+type ActionState = { errors: AttendeeErrors[] };
 
 interface AttendeeDetailStepProps {
   attendees: Attendee[];
-  updateAttendee: (
-    index: number,
-    field: "name" | "email" | "phone",
-    value: string,
-  ) => void;
+  onValid: (attendees: Attendee[]) => void;
 }
 
 const inputClass =
@@ -16,15 +15,36 @@ const errorClass = "text-sm text-red-600 dark:text-red-400";
 
 export function AttendeeDetailStep({
   attendees,
-  updateAttendee,
+  onValid,
 }: AttendeeDetailStepProps) {
+  const formId = useId();
+
+  const action = (_prev: ActionState, formData: FormData) => {
+    const parsed: Attendee[] = attendees.map((_, index) => ({
+      name: String(formData.get(`name${index}`) ?? ""),
+      email: String(formData.get(`email${index}`) ?? ""),
+      phone: String(formData.get(`phone${index}`) ?? ""),
+    }));
+
+    const errors = parsed.map((attendee) => validateAttendee(attendee));
+
+    if (errors.some((e) => Object.keys(e).length > 0)) {
+      return { errors };
+    }
+
+    onValid(parsed);
+
+    return { errors: [] };
+  };
+  const [state, formAction] = useActionState(action, { errors: [] });
+
   return (
     <div>
       <h3 className="text-lg font-semibold">Step 2: Attendee Details</h3>
 
-      <div className="mt-3 space-y-4">
+      <form id="attendee-form" action={formAction} className="mt-3 space-y-4">
         {attendees.map((attendee, index) => {
-          const errors = validateAttendee(attendee);
+          const errors = state.errors[index] ?? {};
 
           return (
             <div
@@ -33,51 +53,54 @@ export function AttendeeDetailStep({
             >
               <p className="font-medium">Attendee {index + 1}</p>
 
-              <label className="block text-sm">
+              <label
+                htmlFor={`${formId}-name-${index}`}
+                className="block text-sm"
+              >
                 Name
-                <input
-                  name={`name${index}`}
-                  value={attendee.name}
-                  onChange={(e) =>
-                    updateAttendee(index, "name", e.target.value)
-                  }
-                  className={inputClass}
-                />
               </label>
+              <input
+                id={`${formId}-name-${index}`}
+                name={`name${index}`}
+                defaultValue={attendee.name}
+                className={inputClass}
+              />
               {errors.name && (
                 <span role="alert" className={errorClass}>
                   {errors.name}
                 </span>
               )}
 
-              <label className="block text-sm">
+              <label
+                htmlFor={`${formId}-email-${index}`}
+                className="block text-sm"
+              >
                 Email
-                <input
-                  name={`email${index}`}
-                  value={attendee.email}
-                  onChange={(e) =>
-                    updateAttendee(index, "email", e.target.value)
-                  }
-                  className={inputClass}
-                />
               </label>
+              <input
+                id={`${formId}-email-${index}`}
+                name={`email${index}`}
+                defaultValue={attendee.email}
+                className={inputClass}
+              />
               {errors.email && (
                 <span role="alert" className={errorClass}>
                   {errors.email}
                 </span>
               )}
 
-              <label className="block text-sm">
+              <label
+                htmlFor={`${formId}-phone-${index}`}
+                className="block text-sm"
+              >
                 Phone
-                <input
-                  name={`phone${index}`}
-                  value={attendee.phone}
-                  onChange={(e) =>
-                    updateAttendee(index, "phone", e.target.value)
-                  }
-                  className={inputClass}
-                />
               </label>
+              <input
+                id={`${formId}-phone-${index}`}
+                name={`phone${index}`}
+                defaultValue={attendee.phone}
+                className={inputClass}
+              />
               {errors.phone && (
                 <span role="alert" className={errorClass}>
                   {errors.phone}
@@ -86,7 +109,7 @@ export function AttendeeDetailStep({
             </div>
           );
         })}
-      </div>
+      </form>
     </div>
   );
 }
