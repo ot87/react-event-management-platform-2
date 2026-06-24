@@ -1,23 +1,20 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 
 import type { Event } from "../types";
-import { createBooking } from "../api";
 import { useBookingReducer } from "../hooks/useBookingReducer";
 
 import { SelectTicketStep } from "./SelectTicketStep";
 import { AttendeeDetailStep } from "./AttendeeDetailStep";
-import { Toast } from "./Toast";
 
 import { generateReferenceNumber } from "../utils/booking";
 import { toISO } from "../utils/date";
 import { useUser } from "../hooks";
+import { useCreateBookingMutation } from "../queries";
+import { startTransition, useOptimistic } from "react";
 
 interface BookingFlowProps {
   event: Event;
 }
-
-type SubmitStatus = "idle" | "submitting" | "success" | "error";
 
 const primaryButton =
   "rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50";
@@ -29,46 +26,47 @@ export function BookingFlow({ event }: BookingFlowProps) {
   const { booking, next, back, selectTicket, setQuantity, setAttendees } =
     useBookingReducer(event.ticketTypes[0].id);
 
-  const [status, setStatus] = useState<SubmitStatus>("idle");
-  const [referenceNumber, setReferenceNumber] = useState("");
-  const [showToast, setShowToast] = useState(false);
+  const { mutateAsync, data, isError, isPending } =
+    useCreateBookingMutation(userId);
   const navigate = useNavigate();
+  const [optimisticRef, addOptimistic] = useOptimistic(
+    data?.referenceNumber ?? null,
+    (_, ref) => ref as string,
+  );
 
   const selectedTicket =
     event.ticketTypes.find((ticket) => ticket.id === booking.ticketTypeId) ??
     event.ticketTypes[0];
   const total = selectedTicket.price * booking.quantity;
 
-  const handleConfirm = async () => {
-    setStatus("submitting");
-    const reference = generateReferenceNumber();
+  const handleConfirm = () => {
+    startTransition(async () => {
+      const reference = generateReferenceNumber();
+      addOptimistic(reference);
 
-    try {
-      await createBooking({
-        userId,
-        eventId: event.id,
-        eventTitle: event.title,
-        eventDate: event.date,
-        tickets: [
-          {
-            type: selectedTicket.name,
-            quantity: booking.quantity,
-            price: selectedTicket.price,
-          },
-        ],
-        attendees: booking.attendees,
-        totalAmount: total,
-        status: "confirmed",
-        bookingDate: toISO(new Date()),
-        referenceNumber: reference,
-      });
-
-      setReferenceNumber(reference);
-      setStatus("success");
-      setShowToast(true);
-    } catch {
-      setStatus("error");
-    }
+      try {
+        await mutateAsync({
+          userId,
+          eventId: event.id,
+          eventTitle: event.title,
+          eventDate: event.date,
+          tickets: [
+            {
+              type: selectedTicket.name,
+              quantity: booking.quantity,
+              price: selectedTicket.price,
+            },
+          ],
+          attendees: booking.attendees,
+          totalAmount: total,
+          status: "confirmed",
+          bookingDate: toISO(new Date()),
+          referenceNumber: reference,
+        });
+      } catch {
+        /* error surfaced via isError */
+      }
+    });
   };
 
   return (
@@ -100,12 +98,12 @@ export function BookingFlow({ event }: BookingFlowProps) {
       )}
 
       {booking.step === 3 &&
-        (status === "success" ? (
+        (optimisticRef ? (
           <div className="space-y-3 text-center">
             <h3 className="text-lg font-semibold">Booking Confirmed!</h3>
             <p className="text-gray-600 dark:text-gray-300">
               Your booking reference is{" "}
-              <span className="font-mono font-semibold">{referenceNumber}</span>
+              <span className="font-mono font-semibold">{optimisticRef}</span>
             </p>
             <button
               type="button"
@@ -129,7 +127,7 @@ export function BookingFlow({ event }: BookingFlowProps) {
               </p>
               <p className="font-semibold">Total: ${total}</p>
             </div>
-            {status === "error" && (
+            {isError && (
               <p
                 role="alert"
                 className="text-sm text-red-600 dark:text-red-400"
@@ -140,15 +138,15 @@ export function BookingFlow({ event }: BookingFlowProps) {
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={status === "submitting"}
+              disabled={isPending}
               className={primaryButton}
             >
-              {status === "submitting" ? "Booking..." : "Confirm Booking"}
+              {isPending ? "Booking..." : "Confirm Booking"}
             </button>
           </div>
         ))}
 
-      {status !== "success" && (
+      {!optimisticRef && (
         <div className="flex justify-between pt-2">
           <button
             type="button"
@@ -173,13 +171,6 @@ export function BookingFlow({ event }: BookingFlowProps) {
             </button>
           )}
         </div>
-      )}
-
-      {showToast && (
-        <Toast
-          message={`Booking confirmed: ${referenceNumber}`}
-          onClose={() => setShowToast(false)}
-        />
       )}
     </div>
   );
