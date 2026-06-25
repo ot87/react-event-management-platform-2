@@ -1,7 +1,7 @@
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
 import type { TicketType } from "../types";
 
-interface CreateEventState {
+export interface CreateEventState {
   step: number;
   draft: {
     title: string;
