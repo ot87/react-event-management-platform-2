@@ -1,3 +1,4 @@
+import type { CreateEventState } from "../store/create-event.slice";
 import type { Attendee } from "../types";
 
 export interface AttendeeErrors {
@@ -28,4 +29,26 @@ export function validateAttendee(attendee: Attendee): AttendeeErrors {
   }
 
   return errors;
+}
+
+export function isStepValid(
+  step: CreateEventState["step"],
+  draft: CreateEventState["draft"],
+): boolean {
+  if (step === 1) {
+    return draft.title.trim() !== "" && draft.category !== "";
+  }
+  if (step === 2) {
+    return (
+      draft.date !== "" &&
+      draft.time !== "" &&
+      draft.location.trim() !== "" &&
+      draft.ticketTypes.length > 0 &&
+      draft.ticketTypes.every(
+        (t) => t.name.trim() !== "" && t.price >= 0 && t.available > 0,
+      )
+    );
+  }
+
+  return true;
 }

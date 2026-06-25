@@ -7,6 +7,7 @@ import {
   setField,
   updateTicketType,
 } from "../store/create-event.slice";
+import { isStepValid } from "../utils/validation";
 
 const CATEGORIES = [
   "Technology",
@@ -252,6 +253,7 @@ export function CreateEventPage() {
             type="button"
             onClick={() => dispatch(nextStep())}
             className={primaryButton}
+            disabled={!isStepValid(step, draft)}
           >
             Next
           </button>
