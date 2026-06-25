@@ -1,41 +1,47 @@
-# Event Booking App
+# Event Management Platform
 
-A single-user event booking application. Browse events, filter and sort them, book tickets through a multi-step flow, view your bookings, and cancel upcoming ones. Includes a persistent light/dark theme.
+Browse events, book tickets through a multi-step flow, manage your bookings, and create new events. Built around modern React patterns — server-state caching, a data-mode router, Redux for a complex form, and React 19 hooks.
 
-The user is hardcoded (`userId: "user1"`, no authentication). The backend is a local [json-server](https://github.com/typicode/json-server) reading from `db.json`.
+The user is simulated (`userId: "user1"`, no real auth). The backend is a local [json-server](https://github.com/typicode/json-server) reading from `db.json`.
 
 ## Tech stack
 
-- **Vite** + **React** + **TypeScript**
-- **Tailwind CSS** (v4) for styling
-- **React Router** (v7) for navigation
-- **json-server** for the REST backend
-- Data fetching with plain `fetch` inside `useEffect` (no data-fetching library)
+- **Vite** + **React 19** + **TypeScript**
+- **Tailwind CSS** (v4)
+- **React Router v7** in **data mode** (`createBrowserRouter` — loaders, actions, `defer`, `errorElement`)
+- **TanStack Query v5** — server state (events, bookings, user), caching, mutations
+- **Redux Toolkit** — the create-event wizard form state
+- **json-server** — REST backend
+
+## State-management strategy
+
+| State                                 | Tool                      |
+| ------------------------------------- | ------------------------- |
+| Server state (events, bookings, user) | TanStack Query            |
+| Complex form (event-creation wizard)  | Redux Toolkit             |
+| Global UI (theme, simulated auth)     | React Context             |
+| Local UI (filters, booking steps)     | `useState` / `useReducer` |
 
 ## Prerequisites
 
 - **Node.js 20+** (developed on Node 24)
-- **Yarn** (the project uses a `yarn.lock`)
+- **Yarn** (the project uses `yarn.lock`)
 
 ## Setup & running
-
-Install dependencies:
 
 ```bash
 yarn
 ```
 
-The app needs **two processes running at the same time**, in two terminals:
+The app needs **two processes** running together, in two terminals:
 
-**1. Start the backend (json-server)** on port 3001:
+**1. Backend (json-server)** on port 3001 — serves `db.json` at `http://localhost:3001`:
 
 ```bash
 yarn server
 ```
 
-This serves `db.json` at `http://localhost:3001`. Leave it running.
-
-**2. Start the frontend (Vite dev server):**
+**2. Frontend (Vite dev server):**
 
 ```bash
 yarn dev
@@ -43,52 +49,62 @@ yarn dev
 
 Open the URL Vite prints (default `http://localhost:5173`).
 
-> The frontend expects the backend at `http://localhost:3001`. If json-server isn't running, the app shows error states.
+> If json-server isn't running, data-backed pages show error states.
+>
+> **Note:** judge the dark-mode flash and `defer` streaming in a production build (`yarn build && yarn preview`), not `yarn dev` — the dev server injects CSS via JS, which adds a flash unrelated to the app.
 
 ### Other scripts
 
 ```bash
-yarn build     # type-check and build for production
+yarn build     # type-check (tsc) + build for production
 yarn preview   # preview the production build
-yarn lint      # run ESLint
+yarn lint      # ESLint
 ```
 
-## Features / how to use
+## Routes & features
 
-- **Events** (`/`) — card grid of events. Search by title, filter by category / date (Upcoming, This Week, This Month) / price (Free, Under $50, $50+), sort by date or price, and favorite events (persisted in `localStorage`).
-- **Event details** (`/events/:id`) — full event info and ticket types; **Book Tickets** opens the booking modal.
-- **Booking flow** — a 3-step modal: select ticket type + quantity (live total) → attendee details (validated) → confirm and submit. Shows a booking reference and a success toast.
-- **My Bookings** (`/bookings`) — your bookings, filterable by Upcoming / Past. Upcoming bookings can be cancelled (with a confirmation dialog).
-- **Theme** — light/dark toggle in the header; the choice persists across reloads.
+- **`/` — Events listing.** Card grid; non-blocking title search (`useDeferredValue`); filter by category / date / price; sort by date or price; like/favorite with optimistic updates (server-backed). Events load via a route loader into the TanStack Query cache.
+- **`/events/:id` — Event details.** Loader fetches the event before render; **reviews are streamed** with `defer` + `Await` + `Suspense` (a deliberate delay simulates a slow source). "Book Now" navigates to the booking flow.
+- **`/book/:eventId` — Booking flow.** 3 steps via `useReducer`: select tickets (live total) → attendee info (validated with React 19 **form actions**) → confirmation (`useOptimistic` for instant feedback). Submitted via a TanStack Query mutation with rollback.
+- **`/my-bookings` — My Bookings.** TanStack Query with tuned `staleTime`/`gcTime`; Upcoming / Past / **Cancelled** filter (Cancelled is a **conditional query**); cancel with an optimistic update + rollback.
+- **`/create-event` — Create Event.** Redux Toolkit multi-step wizard: basic info → date/location/dynamic ticket types → preview & publish. Draft persists to `localStorage`; publish goes through a React Router route action + a `createAsyncThunk`.
+- **`/profile` — Profile.** Reads the current user from the root route's loader via `useRouteLoaderData`.
+- **Theme** — light/dark toggle in the header, persisted to `localStorage`.
+- **404 + per-route `errorElement`** for unmatched URLs and load/render errors.
 
-## Required React concepts — where each lives
+## Required APIs — where each lives
 
-| Concept                       | File(s)                                                                                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Component composition & props | `components/EventList.tsx` → `EventCard.tsx`, `components/BookingList.tsx` → `BookingCard.tsx`, `components/Layout.tsx`, booking step components |
-| `useState`                    | `pages/EventsPage.tsx` (search, sort), `hooks/useFavorites.ts`, dialog/modal state across pages                                                  |
-| `useReducer`                  | `reducers/booking.reducer.ts` (3-step booking flow), `reducers/filters.reducer.ts` (event filters)                                               |
-| `useEffect` (data fetching)   | `hooks/useFetch.ts` (generic fetch lifecycle), used by `useFetchEvents` / `useFetchEvent` / `useFetchBookings`                                   |
-| Context API                   | `context/theme-context.ts` + `ThemeContext.tsx` (theme), `context/user-context.ts` + `UserContext.tsx` (user)                                    |
-| Refs                          | `components/SearchInput.tsx` (auto-focus the search input on mount)                                                                              |
-| Portals                       | `components/Modal.tsx` (booking + confirm dialog), `components/Toast.tsx` (notifications)                                                        |
-| Conditional rendering         | `components/AsyncBoundary.tsx` (loading / error / empty states)                                                                                  |
-| List rendering + keys         | `components/EventList.tsx`, `BookingList.tsx`, `AttendeeDetailStep.tsx`                                                                          |
-| Event handling                | filters, forms, and buttons throughout (e.g. `EventFilters.tsx`, `BookingFlow.tsx`)                                                              |
-| Form handling + validation    | `components/AttendeeDetailStep.tsx` + `utils/validation.ts`                                                                                      |
-| Memo / performance            | `pages/EventsPage.tsx` — `useMemo` over the filter + sort pipeline                                                                               |
+| API / concept                                                      | File(s)                                                                                         |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `createBrowserRouter`, `errorElement`, 404                         | `router.tsx`                                                                                    |
+| Loaders + `ensureQueryData` (loader ↔ Query coexistence)           | `queries/loaders.ts`                                                                            |
+| Route `action` (form submission)                                   | `store/create-event.action.ts` + `router.tsx`                                                   |
+| `defer` + `Await` + `Suspense`                                     | `pages/EventDetailPage.tsx`, `api/reviews.ts` (delay)                                           |
+| `useRouteLoaderData`                                               | `pages/ProfilePage.tsx` (root loader in `queries/loaders.ts`)                                   |
+| `useNavigation` (loading during navigation)                        | `components/Layout.tsx`                                                                         |
+| TanStack `useQuery`, caching, `staleTime`/`gcTime`                 | `queries/queries.ts` (factories), `queries/use*Query.ts`                                        |
+| `useMutation` + optimistic update + rollback                       | `queries/useFavoritesMutation.ts`, `useCancelBookingMutation.ts`, `useCreateBookingMutation.ts` |
+| Conditional query (`enabled`)                                      | `queries/useBookingsQuery.ts` (Cancelled tab)                                                   |
+| `invalidateQueries`                                                | the mutation hooks + `store/create-event.action.ts`                                             |
+| `useDeferredValue` (search)                                        | `pages/EventsPage.tsx`                                                                          |
+| `useOptimistic` (confirmation)                                     | `components/BookingFlow.tsx`                                                                    |
+| Form actions / `useActionState` + `useId`                          | `components/AttendeeDetailStep.tsx`                                                             |
+| `useReducer` (booking steps, filters)                              | `hooks/useBookingReducer.ts`, `hooks/useFiltersReducer.ts`                                      |
+| Redux Toolkit: `configureStore`, `createSlice`, `createAsyncThunk` | `store/index.ts`, `store/create-event.slice.ts`                                                 |
+| Draft → `localStorage` (subscribe + `preloadedState`)              | `store/index.ts`                                                                                |
+| Context (theme, simulated auth)                                    | `context/`                                                                                      |
 
 ## Architecture notes
 
-- **Data layer** — `api/` holds plain `fetch` wrappers for the five endpoints. `hooks/useFetch.ts` is a generic hook that owns the `data` / `loading` / `error` lifecycle; thin wrappers (`useFetchEvents`, etc.) supply the specific request.
-- **State** — event filters and the booking flow each use a `useReducer`. Theme and user are global via Context. Favorites and theme persist to `localStorage`.
-- **Shared UI patterns** — `AsyncBoundary` centralizes loading/error/empty rendering so every list/detail page handles them consistently; `Modal` and `Toast` render through a Portal into `#modal-root`.
-- **Folder layout** — `api/`, `components/`, `context/`, `hooks/`, `pages/`, `reducers/`, `types/`, `utils/`.
+- **Loader + TanStack Query coexistence.** A route loader calls `queryClient.ensureQueryData(query)` to prime the cache before render; the component reads the same key with `useQuery`. One query factory per resource (`queries/queries.ts`) keeps the loader and component on the same key. The loader/`useNavigation` own first-load state; `useQuery` owns refetch/errors after.
+- **Two kinds of "optimistic."** Favorites and booking cancellation use **cache-level** optimism (TanStack `onMutate`/`onError`/`onSettled`). The booking confirmation uses React's **UI-level** `useOptimistic` inside a transition.
+- **Redux scope.** Redux Toolkit holds _only_ the create-event wizard (form state + dynamic tickets + publish thunk). Everything server-backed stays in TanStack Query.
+- **json-server quirk.** v1 coerces numeric-looking query values to numbers, so filtering a string id (`?eventId=1`) misses. Reviews are therefore filtered client-side in `api/reviews.ts`.
+- **Folder layout** — `api/`, `components/`, `context/`, `hooks/`, `lib/`, `pages/`, `queries/`, `reducers/`, `store/`, `types/`, `utils/`.
 
 ## API endpoints (json-server)
 
-- `GET /events` (optionally `?category=`)
-- `GET /events/:id`
-- `GET /bookings?userId=user1`
-- `POST /bookings`
-- `PATCH /bookings/:id` (cancellation sets `status` to `"cancelled"`)
+- `GET /events`, `GET /events/:id`, `POST /events`
+- `GET /bookings?userId=user1` (optionally `&status=`), `POST /bookings`, `PATCH /bookings/:id` (cancellation sets `status` to `"cancelled"`)
+- `GET /users/:id`, `PATCH /users/:id` (favorites)
+- `GET /reviews` (filtered by `eventId` client-side)
