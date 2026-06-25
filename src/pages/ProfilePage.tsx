@@ -1,7 +1,8 @@
-import { useUser } from "../hooks";
+import { useRouteLoaderData } from "react-router";
+import type { User } from "../types";
 
 export function ProfilePage() {
-  const { userId, name } = useUser();
+  const user = useRouteLoaderData("root") as User;
 
   return (
     <>
@@ -9,9 +10,11 @@ export function ProfilePage() {
 
       <div className="max-w-sm rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-        <p className="mb-3 font-medium">{name}</p>
+        <p className="mb-3 font-medium">{user.name}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400">User ID</p>
-        <p className="font-medium">{userId}</p>
+        <p className="mb-3 font-medium">{user.id}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Favorites</p>
+        <p className="font-medium">{user.favoriteEvents.length} saved</p>
       </div>
     </>
   );

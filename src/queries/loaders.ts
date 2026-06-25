@@ -1,8 +1,13 @@
 import type { LoaderFunctionArgs } from "react-router";
 
 import { queryClient } from "../lib/queryClient";
-import { eventQuery, eventsQuery } from "./queries";
+import { eventQuery, eventsQuery, userQuery } from "./queries";
 import { getReviews } from "../api";
+
+export const CURRENT_USER_ID = "user1";
+
+export const rootLoader = () =>
+  queryClient.ensureQueryData(userQuery(CURRENT_USER_ID));
 
 export const eventsLoader = () => queryClient.ensureQueryData(eventsQuery());
 

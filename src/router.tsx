@@ -11,13 +11,20 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { CreateEventPage } from "./pages/CreateEventPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 
-import { bookingLoader, eventLoader, eventsLoader } from "./queries";
+import {
+  bookingLoader,
+  eventLoader,
+  eventsLoader,
+  rootLoader,
+} from "./queries";
 import { createEventAction } from "./store/create-event.action";
 
 export const router = createBrowserRouter([
   {
+    id: "root",
     element: <Layout />,
     errorElement: <ErrorPage />,
+    loader: rootLoader,
     children: [
       {
         index: true,
