@@ -17,6 +17,8 @@ export type Event = {
   image: string;
   organizerName: string;
   ticketTypes: TicketType[];
+  likes?: number;
+  featured?: boolean;
 };
 
 export type Review = {
