@@ -262,6 +262,31 @@
       "status": "confirmed",
       "bookingDate": "2026-04-15",
       "referenceNumber": "BK100002"
+    },
+    {
+      "id": "3",
+      "userId": "user1",
+      "eventId": "2",
+      "eventTitle": "Indie Music Night",
+      "eventDate": "2026-06-11",
+      "tickets": [
+        {
+          "type": "General",
+          "quantity": 1,
+          "price": 30
+        }
+      ],
+      "attendees": [
+        {
+          "name": "John Doe",
+          "email": "john@example.com",
+          "phone": "123-456-7890"
+        }
+      ],
+      "totalAmount": 30,
+      "status": "cancelled",
+      "bookingDate": "2026-05-10",
+      "referenceNumber": "BK100003"
     }
   ],
   "users": [

@@ -1,8 +1,9 @@
 import { useState } from "react";
 
-import { cancelBooking } from "../api";
-import { useFetchBookings } from "../hooks";
+import { useUser } from "../hooks";
+import { useBookingsQuery, useCancelBookingMutation } from "../queries";
 import { isUpcoming } from "../utils/date";
+
 import { AsyncBoundary } from "../components/AsyncBoundary";
 import { BookingList } from "../components/BookingList";
 import { LabeledSelect } from "../components/LabeledSelect";
@@ -12,27 +13,33 @@ import { Toast } from "../components/Toast";
 const FILTER_OPTIONS = [
   { value: "upcoming", label: "Upcoming" },
   { value: "past", label: "Past" },
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 export function BookingsPage() {
-  const [reloadKey, setReloadKey] = useState(0);
-  const { bookings, loading, error } = useFetchBookings(reloadKey);
+  const { userId } = useUser();
   const [filter, setFilter] = useState("upcoming");
   const [cancelingId, setCancelingId] = useState<string | null>(null);
+
+  const confirmed = useBookingsQuery("confirmed");
+  const cancelled = useBookingsQuery("cancelled", filter === "cancelled");
+  const active = filter === "cancelled" ? cancelled : confirmed;
+
+  const cancelMutation = useCancelBookingMutation(userId);
   const [showToast, setShowToast] = useState(false);
 
-  const filteredBookings = bookings.filter(({ eventDate }) =>
-    filter === "upcoming" ? isUpcoming(eventDate) : !isUpcoming(eventDate),
-  );
+  const visibleBookings =
+    filter === "cancelled"
+      ? (cancelled.data ?? [])
+      : (confirmed.data ?? []).filter(({ eventDate }) =>
+          filter === "upcoming"
+            ? isUpcoming(eventDate)
+            : !isUpcoming(eventDate),
+        );
 
   const handleConfirmCancel = async () => {
-    if (!cancelingId) {
-      return;
-    }
-
-    await cancelBooking(cancelingId);
+    cancelMutation.mutate(cancelingId!);
     setCancelingId(null);
-    setReloadKey((key) => key + 1);
     setShowToast(true);
   };
 
@@ -50,12 +57,12 @@ export function BookingsPage() {
       </div>
 
       <AsyncBoundary
-        loading={loading}
-        error={error}
-        isEmpty={filteredBookings.length === 0}
+        loading={active.isLoading}
+        error={active.error?.message ?? null}
+        isEmpty={visibleBookings.length === 0}
         emptyMessage="No bookings yet"
       >
-        <BookingList bookings={filteredBookings} onCancel={setCancelingId} />
+        <BookingList bookings={visibleBookings} onCancel={setCancelingId} />
       </AsyncBoundary>
 
       <Modal isOpen={cancelingId !== null} onClose={() => setCancelingId(null)}>

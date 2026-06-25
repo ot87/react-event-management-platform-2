@@ -1,5 +1,7 @@
 export * from "./loaders";
 export * from "./queries";
+export * from "./useBookingsQuery";
+export * from "./useCancelBookingMutation";
 export * from "./useCreateBookingMutation";
 export * from "./useEventQuery";
 export * from "./useEventsQuery";

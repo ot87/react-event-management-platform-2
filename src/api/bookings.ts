@@ -1,10 +1,14 @@
-import type { Booking } from "../types";
+import type { Booking, BookingStatus } from "../types";
 import { fetchData } from "./client";
 
 export async function getBookings(
   userId: Booking["userId"],
+  status?: BookingStatus,
 ): Promise<Booking[]> {
-  return fetchData("GET", `/bookings?userId=${userId}`);
+  return fetchData(
+    "GET",
+    `/bookings?userId=${userId}${status ? `&status=${status}` : ""}`,
+  );
 }
 
 export async function createBooking(

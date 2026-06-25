@@ -39,7 +39,7 @@ export type Attendee = {
   phone: string;
 };
 
-type BookingStatus = "confirmed" | "cancelled";
+export type BookingStatus = "confirmed" | "cancelled";
 
 export type Booking = {
   id: string;
