@@ -12,6 +12,7 @@ import { CreateEventPage } from "./pages/CreateEventPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 
 import { bookingLoader, eventLoader, eventsLoader } from "./queries";
+import { createEventAction } from "./store/create-event.action";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
       {
         path: "create-event",
         element: <CreateEventPage />,
+        action: createEventAction,
       },
       {
         path: "book/:eventId",

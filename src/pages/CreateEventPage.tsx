@@ -8,6 +8,7 @@ import {
   updateTicketType,
 } from "../store/create-event.slice";
 import { isStepValid } from "../utils/validation";
+import { Form } from "react-router";
 
 const CATEGORIES = [
   "Technology",
@@ -26,7 +27,9 @@ const secondaryButton =
   "rounded border border-gray-300 px-4 py-2 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700";
 
 export function CreateEventPage() {
-  const { step, draft } = useAppSelector((state) => state.createEvent);
+  const { step, draft, status, error } = useAppSelector(
+    (state) => state.createEvent,
+  );
   const dispatch = useAppDispatch();
 
   return (
@@ -233,9 +236,23 @@ export function CreateEventPage() {
               ))}
             </ul>
           </div>
-          <button type="button" className={primaryButton}>
-            Publish
-          </button>
+          <Form method="post">
+            <button
+              type="submit"
+              disabled={
+                status === "loading" ||
+                !(isStepValid(1, draft) && isStepValid(2, draft))
+              }
+              className={primaryButton}
+            >
+              {status === "loading" ? "Publishing…" : "Publish"}
+            </button>
+          </Form>
+          {status === "error" && (
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
         </div>
       )}
 

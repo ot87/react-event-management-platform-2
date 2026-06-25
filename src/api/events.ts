@@ -10,3 +10,7 @@ export async function getEvents(
 export async function getEvent(id: Event["id"]): Promise<Event> {
   return fetchData("GET", `/events/${id}`);
 }
+
+export async function createEvent(event: Omit<Event, "id">): Promise<Event> {
+  return fetchData("POST", "/events", event);
+}

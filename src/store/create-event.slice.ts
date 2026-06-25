@@ -1,5 +1,17 @@
-import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
-import type { TicketType } from "../types";
+import {
+  createAsyncThunk,
+  createSlice,
+  nanoid,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
+
+import type { Event, TicketType } from "../types";
+import { createEvent } from "../api";
+
+export const publishEvent = createAsyncThunk(
+  "createEvent/publish",
+  (event: Omit<Event, "id">) => createEvent(event),
+);
 
 export interface CreateEventState {
   step: number;
@@ -13,6 +25,8 @@ export interface CreateEventState {
     location: string;
     ticketTypes: TicketType[];
   };
+  status: "idle" | "loading" | "error";
+  error: string | null;
 }
 
 const initialState: CreateEventState = {
@@ -27,6 +41,8 @@ const initialState: CreateEventState = {
     location: "",
     ticketTypes: [],
   },
+  status: "idle",
+  error: null,
 };
 
 const createEventSlice = createSlice({
@@ -91,6 +107,20 @@ const createEventSlice = createSlice({
       state.step = Math.max(state.step - 1, 1);
     },
     reset: () => initialState,
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(publishEvent.pending, (s) => {
+        s.status = "loading";
+        s.error = null;
+      })
+      .addCase(publishEvent.fulfilled, (s) => {
+        s.status = "idle";
+      })
+      .addCase(publishEvent.rejected, (s) => {
+        s.status = "error";
+        s.error = "Could not publish.";
+      });
   },
 });
 
